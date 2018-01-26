@@ -139,8 +139,7 @@ contract Airdrop {
      * Storage
      */
     HumanStandardToken public tokenReward;
-    /// @dev purchaseToken(): function that exchanges ETH for tokens (main sale function)
-    /// @notice You're about to purchase the equivalent of `msg.value` Wei in tokens
+    
     function Airdrop(address _token, address[] recipients, uint256[] values) public {
       tokenReward = HumanStandardToken(_token);
       for (uint256 i = 0; i < recipients.length; i++) {
