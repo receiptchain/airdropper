@@ -99,7 +99,6 @@ contract('Airdrop', function(accounts) {
   var sendList = [accounts[1],accounts[2]];
   var sendAmounts = ['5000','5000'];
   var units = new BN('1000000000', 10);
-  var price = conf['price'];
 
   beforeEach(function(done) {
     takeSnapshot()
