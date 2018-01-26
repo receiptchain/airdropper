@@ -139,8 +139,8 @@ contract Airdrop {
      * Storage
      */
     HumanStandardToken public tokenReward;
-    
-    function Airdrop(address _token, address[] recipients, uint256[] values) public {
+
+    function adrop(address _token, address[] recipients, uint256[] values) public {
       tokenReward = HumanStandardToken(_token);
       for (uint256 i = 0; i < recipients.length; i++) {
         tokenReward.transfer(recipients[i], values[i]);

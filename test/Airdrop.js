@@ -99,7 +99,6 @@ contract('Airdrop', function(accounts) {
   var sendList = [accounts[1],accounts[2]];
   var sendAmounts = ['5000','5000'];
   var units = new BN('1000000000', 10);
-  var conf = JSON.parse(fs.readFileSync('./conf/development.json'));
   var price = conf['price'];
 
   beforeEach(function(done) {
@@ -134,7 +133,7 @@ contract('Airdrop', function(accounts) {
 
     beforeEach(function() {
       return instance
-        .Airdrop(
+        .adrop(
           tokenInstance.address,
           sendList,
           ['20','20'],

@@ -16,6 +16,7 @@
       "type": "function"
     },
     {
+      "constant": false,
       "inputs": [
         {
           "name": "_token",
@@ -30,16 +31,18 @@
           "type": "uint256[]"
         }
       ],
+      "name": "adrop",
+      "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
-      "type": "constructor"
+      "type": "function"
     }
   ],
-  "bytecode": "0x6060604052341561000f57600080fd5b6040516102a93803806102a9833981016040528080519060200190919080518201919060200180518201919050506000836000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550600090505b82518110156101b0576000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb84838151811015156100d857fe5b9060200190602002015184848151811015156100f057fe5b906020019060200201516000604051602001526040518363ffffffff167c0100000000000000000000000000000000000000000000000000000000028152600401808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200182815260200192505050602060405180830381600087803b151561018757600080fd5b6102c65a03f1151561019857600080fd5b50505060405180519050508080600101915050610084565b5050505060e7806101c26000396000f300606060405260043610603f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680636e66f6e9146044575b600080fd5b3415604e57600080fd5b60546096565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff16815600a165627a7a723058209786b9da5fe1131409df5ee732e09c7b925a2f18cfaabc39629d68a5ce808cdf0029",
-  "deployedBytecode": "0x606060405260043610603f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680636e66f6e9146044575b600080fd5b3415604e57600080fd5b60546096565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff16815600a165627a7a723058209786b9da5fe1131409df5ee732e09c7b925a2f18cfaabc39629d68a5ce808cdf0029",
-  "sourceMap": "6613:360:0:-;;;6714:255;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;6855:9;6835:6;6802:11;;:40;;;;;;;;;;;;;;;;;;6867:1;6855:13;;6850:113;6874:10;:17;6870:1;:21;6850:113;;;6908:11;;;;;;;;;;;:20;;;6929:10;6940:1;6929:13;;;;;;;;;;;;;;;;;;6944:6;6951:1;6944:9;;;;;;;;;;;;;;;;;;6908:46;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;6893:3;;;;;;;6850:113;;;6714:255;;;;6613:360;;;;;;",
-  "deployedSourceMap": "6613:360:0:-;;;;;;;;;;;;;;;;;;;;;;;;6666:37;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::o",
-  "source": "pragma solidity ^0.4.8;\n\ncontract Token {\n    /* This is a slight change to the ERC20 base standard.\n    function totalSupply() constant returns (uint256 supply);\n    is replaced with:\n    uint256 public totalSupply;\n    This automatically creates a getter function for the totalSupply.\n    This is moved to the base contract since public getter functions are not\n    currently recognised as an implementation of the matching abstract\n    function by the compiler.\n    */\n    /// total amount of tokens\n    uint256 public totalSupply;\n\n    /// @param _owner The address from which the balance will be retrieved\n    /// @return The balance\n    function balanceOf(address _owner) public constant returns (uint256 balance);\n\n    /// @notice send `_value` token to `_to` from `msg.sender`\n    /// @param _to The address of the recipient\n    /// @param _value The amount of token to be transferred\n    /// @return Whether the transfer was successful or not\n    function transfer(address _to, uint256 _value) public returns (bool success);\n\n    /// @notice send `_value` token to `_to` from `_from` on the condition it is approved by `_from`\n    /// @param _from The address of the sender\n    /// @param _to The address of the recipient\n    /// @param _value The amount of token to be transferred\n    /// @return Whether the transfer was successful or not\n    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success);\n\n    /// @notice `msg.sender` approves `_spender` to spend `_value` tokens\n    /// @param _spender The address of the account able to transfer the tokens\n    /// @param _value The amount of tokens to be approved for transfer\n    /// @return Whether the approval was successful or not\n    function approve(address _spender, uint256 _value) public returns (bool success);\n\n    /// @param _owner The address of the account owning tokens\n    /// @param _spender The address of the account able to transfer the tokens\n    /// @return Amount of remaining tokens allowed to spent\n    function allowance(address _owner, address _spender) public constant returns (uint256 remaining);\n\n    event Transfer(address indexed _from, address indexed _to, uint256 _value);\n    event Approval(address indexed _owner, address indexed _spender, uint256 _value);\n}\n\ncontract StandardToken is Token {\n\n    uint256 constant MAX_UINT256 = 2**256 - 1;\n\n    function transfer(address _to, uint256 _value) public returns (bool success) {\n        //Default assumes totalSupply can't be over max (2^256 - 1).\n        //If your token leaves out totalSupply and can issue more tokens as time goes on, you need to check if it doesn't wrap.\n        //Replace the if with this one instead.\n        //require(balances[msg.sender] >= _value && balances[_to] + _value > balances[_to]);\n        require(balances[msg.sender] >= _value);\n        balances[msg.sender] -= _value;\n        balances[_to] += _value;\n        Transfer(msg.sender, _to, _value);\n        return true;\n    }\n\n    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {\n        //same as above. Replace this line with the following if you want to protect against wrapping uints.\n        //require(balances[_from] >= _value && allowed[_from][msg.sender] >= _value && balances[_to] + _value > balances[_to]);\n        uint256 allowance = allowed[_from][msg.sender];\n        require(balances[_from] >= _value && allowance >= _value);\n        balances[_to] += _value;\n        balances[_from] -= _value;\n        if (allowance < MAX_UINT256) {\n            allowed[_from][msg.sender] -= _value;\n        }\n        Transfer(_from, _to, _value);\n        return true;\n    }\n\n    function balanceOf(address _owner) constant public returns (uint256 balance) {\n        return balances[_owner];\n    }\n\n    function approve(address _spender, uint256 _value) public returns (bool success) {\n        allowed[msg.sender][_spender] = _value;\n        Approval(msg.sender, _spender, _value);\n        return true;\n    }\n\n    function allowance(address _owner, address _spender) public constant returns (uint256 remaining) {\n      return allowed[_owner][_spender];\n    }\n\n    mapping (address => uint256) balances;\n    mapping (address => mapping (address => uint256)) allowed;\n}\n\ncontract HumanStandardToken is StandardToken {\n\n    /* Public variables of the token */\n\n    /*\n    NOTE:\n    The following variables are OPTIONAL vanities. One does not have to include them.\n    They allow one to customise the token contract & in no way influences the core functionality.\n    Some wallets/interfaces might not even bother to look at this information.\n    */\n    string public name;                   //fancy name: eg Simon Bucks\n    uint8 public decimals;                //How many decimals to show. ie. There could 1000 base units with 3 decimals. Meaning 0.980 SBX = 980 base units. It's like comparing 1 wei to 1 ether.\n    string public symbol;                 //An identifier: eg SBX\n    string public version = 'H0.1';       //human 0.1 standard. Just an arbitrary versioning scheme.\n\n     function HumanStandardToken(\n        uint256 _initialAmount,\n        string _tokenName,\n        uint8 _decimalUnits,\n        string _tokenSymbol\n        ) public {\n        balances[msg.sender] = _initialAmount;               // Give the creator all initial tokens\n        totalSupply = _initialAmount;                        // Update total supply\n        name = _tokenName;                                   // Set the name for display purposes\n        decimals = _decimalUnits;                            // Amount of decimals for display purposes\n        symbol = _tokenSymbol;                               // Set the symbol for display purposes\n    }\n\n    /* Approves and then calls the receiving contract */\n    function approveAndCall(address _spender, uint256 _value, bytes _extraData) public returns (bool success) {\n        allowed[msg.sender][_spender] = _value;\n        Approval(msg.sender, _spender, _value);\n\n        //call the receiveApproval function on the contract you want to be notified. This crafts the function signature manually so one doesn't have to include a contract in here just for this.\n        //receiveApproval(address _from, uint256 _value, address _tokenContract, bytes _extraData)\n        //it is assumed when one does this that the call *should* succeed, otherwise one would use vanilla approve instead.\n        require(_spender.call(bytes4(bytes32(keccak256(\"receiveApproval(address,uint256,address,bytes)\"))), msg.sender, _value, this, _extraData));\n        return true;\n    }\n}\n\ncontract Airdrop {\n    /*\n     * Storage\n     */\n    HumanStandardToken public tokenReward;\n    \n    function Airdrop(address _token, address[] recipients, uint256[] values) public {\n      tokenReward = HumanStandardToken(_token);\n      for (uint256 i = 0; i < recipients.length; i++) {\n        tokenReward.transfer(recipients[i], values[i]);\n      }\n    }\n\n\n}\n\n/* contract airdrop {\n\n    function multisend(address _tokenAddr, address[] dests, uint256[] values)\n    returns (uint256) {\n        uint256 i = 0;\n        while (i < dests.length) {\n           ERC20(_tokenAddr).transfer(dests[i], values[i]);\n           i += 1;\n        }\n        return(i);\n    }\n} */\n",
+  "bytecode": "0x6060604052341561000f57600080fd5b6103298061001e6000396000f30060606040526004361061004c576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680636e66f6e914610051578063c78f39a2146100a6575b600080fd5b341561005c57600080fd5b61006461015f565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b34156100b157600080fd5b61015d600480803573ffffffffffffffffffffffffffffffffffffffff169060200190919080359060200190820180359060200190808060200260200160405190810160405280939291908181526020018383602002808284378201915050505050509190803590602001908201803590602001908080602002602001604051908101604052809392919081815260200183836020028082843782019150505050505091905050610184565b005b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b6000836000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550600090505b82518110156102f7576000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb848381518110151561021f57fe5b90602001906020020151848481518110151561023757fe5b906020019060200201516000604051602001526040518363ffffffff167c0100000000000000000000000000000000000000000000000000000000028152600401808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200182815260200192505050602060405180830381600087803b15156102ce57600080fd5b6102c65a03f115156102df57600080fd5b505050604051805190505080806001019150506101cb565b505050505600a165627a7a7230582078effa15a3cf9a777a71eb3cce38f6762cf5dde9de9dfc41660fcdb169337ada0029",
+  "deployedBytecode": "0x60606040526004361061004c576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680636e66f6e914610051578063c78f39a2146100a6575b600080fd5b341561005c57600080fd5b61006461015f565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b34156100b157600080fd5b61015d600480803573ffffffffffffffffffffffffffffffffffffffff169060200190919080359060200190820180359060200190808060200260200160405190810160405280939291908181526020018383602002808284378201915050505050509190803590602001908201803590602001908080602002602001604051908101604052809392919081815260200183836020028082843782019150505050505091905050610184565b005b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b6000836000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550600090505b82518110156102f7576000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb848381518110151561021f57fe5b90602001906020020151848481518110151561023757fe5b906020019060200201516000604051602001526040518363ffffffff167c0100000000000000000000000000000000000000000000000000000000028152600401808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200182815260200192505050602060405180830381600087803b15156102ce57600080fd5b6102c65a03f115156102df57600080fd5b505050604051805190505080806001019150506101cb565b505050505600a165627a7a7230582078effa15a3cf9a777a71eb3cce38f6762cf5dde9de9dfc41660fcdb169337ada0029",
+  "sourceMap": "6613:354:0:-;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "6613:354:0:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;6666:37;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;6710:253;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;6666:37;;;;;;;;;;;;;:::o;6710:253::-;6849:9;6829:6;6796:11;;:40;;;;;;;;;;;;;;;;;;6861:1;6849:13;;6844:113;6868:10;:17;6864:1;:21;6844:113;;;6902:11;;;;;;;;;;;:20;;;6923:10;6934:1;6923:13;;;;;;;;;;;;;;;;;;6938:6;6945:1;6938:9;;;;;;;;;;;;;;;;;;6902:46;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;6887:3;;;;;;;6844:113;;;6710:253;;;;:::o",
+  "source": "pragma solidity ^0.4.8;\n\ncontract Token {\n    /* This is a slight change to the ERC20 base standard.\n    function totalSupply() constant returns (uint256 supply);\n    is replaced with:\n    uint256 public totalSupply;\n    This automatically creates a getter function for the totalSupply.\n    This is moved to the base contract since public getter functions are not\n    currently recognised as an implementation of the matching abstract\n    function by the compiler.\n    */\n    /// total amount of tokens\n    uint256 public totalSupply;\n\n    /// @param _owner The address from which the balance will be retrieved\n    /// @return The balance\n    function balanceOf(address _owner) public constant returns (uint256 balance);\n\n    /// @notice send `_value` token to `_to` from `msg.sender`\n    /// @param _to The address of the recipient\n    /// @param _value The amount of token to be transferred\n    /// @return Whether the transfer was successful or not\n    function transfer(address _to, uint256 _value) public returns (bool success);\n\n    /// @notice send `_value` token to `_to` from `_from` on the condition it is approved by `_from`\n    /// @param _from The address of the sender\n    /// @param _to The address of the recipient\n    /// @param _value The amount of token to be transferred\n    /// @return Whether the transfer was successful or not\n    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success);\n\n    /// @notice `msg.sender` approves `_spender` to spend `_value` tokens\n    /// @param _spender The address of the account able to transfer the tokens\n    /// @param _value The amount of tokens to be approved for transfer\n    /// @return Whether the approval was successful or not\n    function approve(address _spender, uint256 _value) public returns (bool success);\n\n    /// @param _owner The address of the account owning tokens\n    /// @param _spender The address of the account able to transfer the tokens\n    /// @return Amount of remaining tokens allowed to spent\n    function allowance(address _owner, address _spender) public constant returns (uint256 remaining);\n\n    event Transfer(address indexed _from, address indexed _to, uint256 _value);\n    event Approval(address indexed _owner, address indexed _spender, uint256 _value);\n}\n\ncontract StandardToken is Token {\n\n    uint256 constant MAX_UINT256 = 2**256 - 1;\n\n    function transfer(address _to, uint256 _value) public returns (bool success) {\n        //Default assumes totalSupply can't be over max (2^256 - 1).\n        //If your token leaves out totalSupply and can issue more tokens as time goes on, you need to check if it doesn't wrap.\n        //Replace the if with this one instead.\n        //require(balances[msg.sender] >= _value && balances[_to] + _value > balances[_to]);\n        require(balances[msg.sender] >= _value);\n        balances[msg.sender] -= _value;\n        balances[_to] += _value;\n        Transfer(msg.sender, _to, _value);\n        return true;\n    }\n\n    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {\n        //same as above. Replace this line with the following if you want to protect against wrapping uints.\n        //require(balances[_from] >= _value && allowed[_from][msg.sender] >= _value && balances[_to] + _value > balances[_to]);\n        uint256 allowance = allowed[_from][msg.sender];\n        require(balances[_from] >= _value && allowance >= _value);\n        balances[_to] += _value;\n        balances[_from] -= _value;\n        if (allowance < MAX_UINT256) {\n            allowed[_from][msg.sender] -= _value;\n        }\n        Transfer(_from, _to, _value);\n        return true;\n    }\n\n    function balanceOf(address _owner) constant public returns (uint256 balance) {\n        return balances[_owner];\n    }\n\n    function approve(address _spender, uint256 _value) public returns (bool success) {\n        allowed[msg.sender][_spender] = _value;\n        Approval(msg.sender, _spender, _value);\n        return true;\n    }\n\n    function allowance(address _owner, address _spender) public constant returns (uint256 remaining) {\n      return allowed[_owner][_spender];\n    }\n\n    mapping (address => uint256) balances;\n    mapping (address => mapping (address => uint256)) allowed;\n}\n\ncontract HumanStandardToken is StandardToken {\n\n    /* Public variables of the token */\n\n    /*\n    NOTE:\n    The following variables are OPTIONAL vanities. One does not have to include them.\n    They allow one to customise the token contract & in no way influences the core functionality.\n    Some wallets/interfaces might not even bother to look at this information.\n    */\n    string public name;                   //fancy name: eg Simon Bucks\n    uint8 public decimals;                //How many decimals to show. ie. There could 1000 base units with 3 decimals. Meaning 0.980 SBX = 980 base units. It's like comparing 1 wei to 1 ether.\n    string public symbol;                 //An identifier: eg SBX\n    string public version = 'H0.1';       //human 0.1 standard. Just an arbitrary versioning scheme.\n\n     function HumanStandardToken(\n        uint256 _initialAmount,\n        string _tokenName,\n        uint8 _decimalUnits,\n        string _tokenSymbol\n        ) public {\n        balances[msg.sender] = _initialAmount;               // Give the creator all initial tokens\n        totalSupply = _initialAmount;                        // Update total supply\n        name = _tokenName;                                   // Set the name for display purposes\n        decimals = _decimalUnits;                            // Amount of decimals for display purposes\n        symbol = _tokenSymbol;                               // Set the symbol for display purposes\n    }\n\n    /* Approves and then calls the receiving contract */\n    function approveAndCall(address _spender, uint256 _value, bytes _extraData) public returns (bool success) {\n        allowed[msg.sender][_spender] = _value;\n        Approval(msg.sender, _spender, _value);\n\n        //call the receiveApproval function on the contract you want to be notified. This crafts the function signature manually so one doesn't have to include a contract in here just for this.\n        //receiveApproval(address _from, uint256 _value, address _tokenContract, bytes _extraData)\n        //it is assumed when one does this that the call *should* succeed, otherwise one would use vanilla approve instead.\n        require(_spender.call(bytes4(bytes32(keccak256(\"receiveApproval(address,uint256,address,bytes)\"))), msg.sender, _value, this, _extraData));\n        return true;\n    }\n}\n\ncontract Airdrop {\n    /*\n     * Storage\n     */\n    HumanStandardToken public tokenReward;\n\n    function adrop(address _token, address[] recipients, uint256[] values) public {\n      tokenReward = HumanStandardToken(_token);\n      for (uint256 i = 0; i < recipients.length; i++) {\n        tokenReward.transfer(recipients[i], values[i]);\n      }\n    }\n\n\n}\n\n/* contract airdrop {\n\n    function multisend(address _tokenAddr, address[] dests, uint256[] values)\n    returns (uint256) {\n        uint256 i = 0;\n        while (i < dests.length) {\n           ERC20(_tokenAddr).transfer(dests[i], values[i]);\n           i += 1;\n        }\n        return(i);\n    }\n} */\n",
   "sourcePath": "/Users/nicholasjuntilla/Documents/rcairdrop/contracts/Airdrop.sol",
   "ast": {
     "attributes": {
@@ -4813,11 +4816,11 @@
             "attributes": {
               "constant": false,
               "implemented": true,
-              "isConstructor": true,
+              "isConstructor": false,
               "modifiers": [
                 null
               ],
-              "name": "Airdrop",
+              "name": "adrop",
               "payable": false,
               "scope": 389,
               "stateMutability": "nonpayable",
@@ -4846,12 +4849,12 @@
                         },
                         "id": 347,
                         "name": "ElementaryTypeName",
-                        "src": "6731:7:0"
+                        "src": "6725:7:0"
                       }
                     ],
                     "id": 348,
                     "name": "VariableDeclaration",
-                    "src": "6731:14:0"
+                    "src": "6725:14:0"
                   },
                   {
                     "attributes": {
@@ -4878,17 +4881,17 @@
                             },
                             "id": 349,
                             "name": "ElementaryTypeName",
-                            "src": "6747:7:0"
+                            "src": "6741:7:0"
                           }
                         ],
                         "id": 350,
                         "name": "ArrayTypeName",
-                        "src": "6747:9:0"
+                        "src": "6741:9:0"
                       }
                     ],
                     "id": 351,
                     "name": "VariableDeclaration",
-                    "src": "6747:20:0"
+                    "src": "6741:20:0"
                   },
                   {
                     "attributes": {
@@ -4915,22 +4918,22 @@
                             },
                             "id": 352,
                             "name": "ElementaryTypeName",
-                            "src": "6769:7:0"
+                            "src": "6763:7:0"
                           }
                         ],
                         "id": 353,
                         "name": "ArrayTypeName",
-                        "src": "6769:9:0"
+                        "src": "6763:9:0"
                       }
                     ],
                     "id": 354,
                     "name": "VariableDeclaration",
-                    "src": "6769:16:0"
+                    "src": "6763:16:0"
                   }
                 ],
                 "id": 355,
                 "name": "ParameterList",
-                "src": "6730:56:0"
+                "src": "6724:56:0"
               },
               {
                 "attributes": {
@@ -4941,7 +4944,7 @@
                 "children": [],
                 "id": 356,
                 "name": "ParameterList",
-                "src": "6794:0:0"
+                "src": "6788:0:0"
               },
               {
                 "children": [
@@ -4970,7 +4973,7 @@
                             },
                             "id": 357,
                             "name": "Identifier",
-                            "src": "6802:11:0"
+                            "src": "6796:11:0"
                           },
                           {
                             "attributes": {
@@ -5004,7 +5007,7 @@
                                 },
                                 "id": 358,
                                 "name": "Identifier",
-                                "src": "6816:18:0"
+                                "src": "6810:18:0"
                               },
                               {
                                 "attributes": {
@@ -5018,22 +5021,22 @@
                                 },
                                 "id": 359,
                                 "name": "Identifier",
-                                "src": "6835:6:0"
+                                "src": "6829:6:0"
                               }
                             ],
                             "id": 360,
                             "name": "FunctionCall",
-                            "src": "6816:26:0"
+                            "src": "6810:26:0"
                           }
                         ],
                         "id": 361,
                         "name": "Assignment",
-                        "src": "6802:40:0"
+                        "src": "6796:40:0"
                       }
                     ],
                     "id": 362,
                     "name": "ExpressionStatement",
-                    "src": "6802:40:0"
+                    "src": "6796:40:0"
                   },
                   {
                     "children": [
@@ -5063,12 +5066,12 @@
                                 },
                                 "id": 363,
                                 "name": "ElementaryTypeName",
-                                "src": "6855:7:0"
+                                "src": "6849:7:0"
                               }
                             ],
                             "id": 364,
                             "name": "VariableDeclaration",
-                            "src": "6855:9:0"
+                            "src": "6849:9:0"
                           },
                           {
                             "attributes": {
@@ -5085,12 +5088,12 @@
                             },
                             "id": 365,
                             "name": "Literal",
-                            "src": "6867:1:0"
+                            "src": "6861:1:0"
                           }
                         ],
                         "id": 366,
                         "name": "VariableDeclarationStatement",
-                        "src": "6855:13:0"
+                        "src": "6849:13:0"
                       },
                       {
                         "attributes": {
@@ -5119,7 +5122,7 @@
                             },
                             "id": 367,
                             "name": "Identifier",
-                            "src": "6870:1:0"
+                            "src": "6864:1:0"
                           },
                           {
                             "attributes": {
@@ -5145,17 +5148,17 @@
                                 },
                                 "id": 368,
                                 "name": "Identifier",
-                                "src": "6874:10:0"
+                                "src": "6868:10:0"
                               }
                             ],
                             "id": 369,
                             "name": "MemberAccess",
-                            "src": "6874:17:0"
+                            "src": "6868:17:0"
                           }
                         ],
                         "id": 370,
                         "name": "BinaryOperation",
-                        "src": "6870:21:0"
+                        "src": "6864:21:0"
                       },
                       {
                         "children": [
@@ -5183,17 +5186,17 @@
                                 },
                                 "id": 371,
                                 "name": "Identifier",
-                                "src": "6893:1:0"
+                                "src": "6887:1:0"
                               }
                             ],
                             "id": 372,
                             "name": "UnaryOperation",
-                            "src": "6893:3:0"
+                            "src": "6887:3:0"
                           }
                         ],
                         "id": 373,
                         "name": "ExpressionStatement",
-                        "src": "6893:3:0"
+                        "src": "6887:3:0"
                       },
                       {
                         "children": [
@@ -5247,12 +5250,12 @@
                                         },
                                         "id": 374,
                                         "name": "Identifier",
-                                        "src": "6908:11:0"
+                                        "src": "6902:11:0"
                                       }
                                     ],
                                     "id": 376,
                                     "name": "MemberAccess",
-                                    "src": "6908:20:0"
+                                    "src": "6902:20:0"
                                   },
                                   {
                                     "attributes": {
@@ -5276,7 +5279,7 @@
                                         },
                                         "id": 377,
                                         "name": "Identifier",
-                                        "src": "6929:10:0"
+                                        "src": "6923:10:0"
                                       },
                                       {
                                         "attributes": {
@@ -5290,12 +5293,12 @@
                                         },
                                         "id": 378,
                                         "name": "Identifier",
-                                        "src": "6940:1:0"
+                                        "src": "6934:1:0"
                                       }
                                     ],
                                     "id": 379,
                                     "name": "IndexAccess",
-                                    "src": "6929:13:0"
+                                    "src": "6923:13:0"
                                   },
                                   {
                                     "attributes": {
@@ -5319,7 +5322,7 @@
                                         },
                                         "id": 380,
                                         "name": "Identifier",
-                                        "src": "6944:6:0"
+                                        "src": "6938:6:0"
                                       },
                                       {
                                         "attributes": {
@@ -5333,52 +5336,52 @@
                                         },
                                         "id": 381,
                                         "name": "Identifier",
-                                        "src": "6951:1:0"
+                                        "src": "6945:1:0"
                                       }
                                     ],
                                     "id": 382,
                                     "name": "IndexAccess",
-                                    "src": "6944:9:0"
+                                    "src": "6938:9:0"
                                   }
                                 ],
                                 "id": 383,
                                 "name": "FunctionCall",
-                                "src": "6908:46:0"
+                                "src": "6902:46:0"
                               }
                             ],
                             "id": 384,
                             "name": "ExpressionStatement",
-                            "src": "6908:46:0"
+                            "src": "6902:46:0"
                           }
                         ],
                         "id": 385,
                         "name": "Block",
-                        "src": "6898:65:0"
+                        "src": "6892:65:0"
                       }
                     ],
                     "id": 386,
                     "name": "ForStatement",
-                    "src": "6850:113:0"
+                    "src": "6844:113:0"
                   }
                 ],
                 "id": 387,
                 "name": "Block",
-                "src": "6794:175:0"
+                "src": "6788:175:0"
               }
             ],
             "id": 388,
             "name": "FunctionDefinition",
-            "src": "6714:255:0"
+            "src": "6710:253:0"
           }
         ],
         "id": 389,
         "name": "ContractDefinition",
-        "src": "6613:360:0"
+        "src": "6613:354:0"
       }
     ],
     "id": 390,
     "name": "SourceUnit",
-    "src": "0:7277:0"
+    "src": "0:7271:0"
   },
   "compiler": {
     "name": "solc",
@@ -5388,9 +5391,9 @@
     "5777": {
       "events": {},
       "links": {},
-      "address": "0x8cd918cee8f93989e334bc0107bb33a9586d05c0"
+      "address": "0x66078a97def9d40b2ca7abb44733dd897ec6231d"
     }
   },
   "schemaVersion": "1.0.1",
-  "updatedAt": "2018-01-26T21:47:03.248Z"
+  "updatedAt": "2018-01-26T22:36:48.851Z"
 }
