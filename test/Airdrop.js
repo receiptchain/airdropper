@@ -109,12 +109,9 @@ contract('Airdrop', function(accounts) {
           .deployed()
           .then(function(_tokenInstance) {
             tokenInstance = _tokenInstance;
-
             Airdrop
               .new(
-                tokenInstance.address,
-                sendList,
-                sendAmounts
+                tokenInstance.address
               )
               .then(function(_instance) {
                 instance = _instance;
@@ -128,24 +125,50 @@ contract('Airdrop', function(accounts) {
     return resetSnapshot(snapshotId);
   });
 
-  describe('when we call the airdrop again', function() {
+  it('0x627306090abaB3A6e1400e9345bC60c78a8BEf57 should have all coins', function() {
+    return getBalanceOf('0x627306090abaB3A6e1400e9345bC60c78a8BEf57')
+      .then(function(result) {
+        console.log('result is ', result)
+        var expected = '21000000000000000';
+        assert.equal(result, expected);
+      });
+  });
+
+  it('should transfer all coins to contract', function() {
+    return tokenInstance
+            .transfer(
+              instance.address,
+              21000000000000000
+            ).then(getBalanceOf(instance.address)
+              .then(function(result) {
+                console.log('result is ', result)
+                var expected = '21000000000000000';
+                assert.equal(result, expected);
+              })
+            );
+  });
+
+
+
+
+  describe('when we call adrop function', function() {
 
     beforeEach(function() {
       return instance
         .adrop(
-          tokenInstance.address,
-          sendList,
-          ['20','20'],
+          ['0xf17f52151EbEF6C7334FAD080c5704D77216b732','0xf17f52151EbEF6C7334FAD080c5704D77216b732'],
+          [5000,20],
           {
-            from: ownerAccount
+            from: 0x627306090abaB3A6e1400e9345bC60c78a8BEf57
           }
         );
     });
 
     it('should send 20 more to the two buyers', function() {
-      return getBalanceOf(buyerAccount1)
+      return getBalanceOf('0xf17f52151EbEF6C7334FAD080c5704D77216b732')
         .then(function(result) {
-          var expected = '5200';
+          console.log('result is ', result)
+          var expected = 5200;
           assert.equal(result, expected);
         });
     });

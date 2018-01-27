@@ -14,7 +14,8 @@ module.exports = {
       port: 7545,
       network_id: "*", // Match any network id
       gas: 4500000,
-      gasPrice: 20000000000
+      gasPrice: 20000000000,
+      from: '0x627306090abaB3A6e1400e9345bC60c78a8BEf57'
     }
   }
 };

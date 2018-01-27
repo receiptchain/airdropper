@@ -139,9 +139,15 @@ contract Airdrop {
      * Storage
      */
     HumanStandardToken public tokenReward;
+    /// @dev Airdrop(): constructor for Airdrop contract
+    /// @param _tokenAddress the address which owns the token
+    function Airdrop(
+        address _tokenAddress
+    ) public {
+        tokenReward = HumanStandardToken(_tokenAddress);
+    }
 
-    function adrop(address _token, address[] recipients, uint256[] values) public {
-      tokenReward = HumanStandardToken(_token);
+    function adrop(address[] recipients, uint256[] values) public {
       for (uint256 i = 0; i < recipients.length; i++) {
         tokenReward.transfer(recipients[i], values[i]);
       }
@@ -149,16 +155,3 @@ contract Airdrop {
 
 
 }
-
-/* contract airdrop {
-
-    function multisend(address _tokenAddr, address[] dests, uint256[] values)
-    returns (uint256) {
-        uint256 i = 0;
-        while (i < dests.length) {
-           ERC20(_tokenAddr).transfer(dests[i], values[i]);
-           i += 1;
-        }
-        return(i);
-    }
-} */
